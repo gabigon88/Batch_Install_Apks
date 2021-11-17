@@ -6,15 +6,7 @@ from threading import Thread
 from airtest.core.api import *
 from airtest.cli.parser import cli_setup
 from airtest.core.android import Android
-
-if not cli_setup():
-    auto_setup(__file__, logdir=False)
-
 from poco.drivers.android.uiautomation import AndroidUiautomationPoco
-poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)
-
-
-is_complete = False
 
 def vivo_input():
     global is_complete
@@ -48,15 +40,19 @@ def huawei_input():
         
         sleep(5.0)
 
+# HONOR
+def honor_input():
+    huawei_input()
+
 def install_apk(uninstall_first: bool = False):
     global is_complete
 
     package_list = ['com.test.v1'] # 要移除的apk package名字
-    apk_path = 'C:/apk_folder' # 放apk的資料夾路徑
-    apks_list = ['test.apk'] # 要安裝的apk檔名
+    apk_path = 'C:/Users/Ming/Desktop/11.7.3' # 放apk的資料夾路徑
+    apks_list = ['TYC.apk'] # 要安裝的apk檔名
 
     android = Android()
-
+    brand = android.shell('getprop ro.product.brand')
     if uninstall_first:
         for package in package_list:
             try:
@@ -68,6 +64,14 @@ def install_apk(uninstall_first: bool = False):
         android.install_app(f'{apk_path}/{apk}', replace=True, install_options=['-g'])
         
     is_complete = True
+
+
+if not cli_setup():
+    auto_setup(__file__, logdir=False)
+
+poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)
+
+is_complete = False
 
 input_pwd = huawei_input
 
