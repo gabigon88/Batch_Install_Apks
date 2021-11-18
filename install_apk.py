@@ -1,58 +1,30 @@
 # -*- encoding=utf8 -*-
-
-import os, subprocess
 from time import sleep
 from threading import Thread
 from airtest.core.api import *
 from airtest.cli.parser import cli_setup
 from airtest.core.android import Android
-from poco.drivers.android.uiautomation import AndroidUiautomationPoco
+from inputter import Inputter
 
-def vivo_input():
-    global is_complete
-    vivo_pwd = '' # vivo帳號的密碼，apk安裝時帳號驗證用
-    while not is_complete:
-        if poco("com.coloros.safecenter:id/et_login_passwd_edit").exists():
-            poco("com.coloros.safecenter:id/et_login_passwd_edit").click()
-            poco("com.coloros.safecenter:id/et_login_passwd_edit").set_text(vivo_pwd)
-            poco("android:id/button1").click()
-                            
-        if poco(text="安装|安裝").exists():
-            poco(text="安装|安裝").click()
+def input_pwd():
+    global brand_name, inputter
 
-        if poco("com.android.packageinstaller:id/virus_warning").exists():
-            poco("com.android.packageinstaller:id/virus_warning").click()
-            
-        if poco(textMatches="重新安装|重新安裝").exists():
-            poco(textMatches="重新安装|重新安裝").click()
+    while brand_name == '':
+        sleep(1.0)
         
-        sleep(5.0)
-
-def huawei_input():
-    global is_complete
-    oppo_pwd = '' # oppo帳號的密碼，apk安裝時帳號驗證用
-    while not is_complete:
-        if poco(text="安装|安裝").exists():
-            poco(text="安装|安裝").click()
-            
-        if poco(textMatches="继续安装|繼續安裝").exists():
-            poco(textMatches="继续安装|繼續安裝").click()
-        
-        sleep(5.0)
-
-# HONOR
-def honor_input():
-    huawei_input()
+    inputter.set_input_type(brand_name)
+    inputter.run()
 
 def install_apk(uninstall_first: bool = False):
-    global is_complete
+    global brand_name, inputter
 
     package_list = ['com.test.v1'] # 要移除的apk package名字
-    apk_path = 'C:/Users/Ming/Desktop/11.7.3' # 放apk的資料夾路徑
-    apks_list = ['TYC.apk'] # 要安裝的apk檔名
+    apk_path = 'C:/apk/' # 放apk的資料夾路徑
+    apks_list = ['test.apk'] # 要安裝的apk檔名
 
     android = Android()
-    brand = android.shell('getprop ro.product.brand')
+    brand_name = android.shell('getprop ro.product.brand')
+    
     if uninstall_first:
         for package in package_list:
             try:
@@ -62,18 +34,14 @@ def install_apk(uninstall_first: bool = False):
     
     for apk in apks_list:
         android.install_app(f'{apk_path}/{apk}', replace=True, install_options=['-g'])
-        
-    is_complete = True
 
+    inputter.stop()
 
 if not cli_setup():
     auto_setup(__file__, logdir=False)
 
-poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)
-
-is_complete = False
-
-input_pwd = huawei_input
+brand_name = ''
+inputter = Inputter()
 
 # 新建用於等待彈窗輸入帳號密碼的執行緒
 thread1 = Thread(target=input_pwd)
