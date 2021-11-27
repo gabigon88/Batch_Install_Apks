@@ -84,27 +84,17 @@ class Inputter():
             sleep(5.0)
 
     def set_input_type(self, brand_name:str):
-        brand = brand_name.lower().strip()
+        input_type_dict = {
+            'huawei': self.general_confirm,
+            'honor': self.general_confirm,
+            'oppo': self.oppo_confirm,
+            'vivo': self.vivo_confirm,
+            'realme': self.realme_confirm,
+            'xiaomi': self.general_confirm,
+        }
         
-        if brand == 'huawei' or brand == 'honor':
-            # 華為家族目前不會跳驗證窗
-            self.runner = self.general_confirm
-
-        elif brand == 'oppo':
-            self.runner = self.oppo_confirm
-
-        elif brand == 'vivo':
-            self.runner = self.vivo_confirm
-
-        elif brand == 'realme':
-            self.runner = self.realme_confirm
-            pass
-
-        elif brand == 'xiaomi':
-            self.runner = self.general_confirm
-
-        else: # 如果沒有對應的品牌，使用泛用規則
-            self.runner = self.general_confirm
+        brand = brand_name.lower().strip()
+        self.runner = input_type_dict.get(brand, self.general_confirm)
 
     def run(self):
         self.runner()
